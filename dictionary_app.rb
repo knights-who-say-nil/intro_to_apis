@@ -1,10 +1,51 @@
 require "http"
 
-response = HTTP.get("https://api.wordnik.com/v4/word.json/school/examples?includeDuplicates=false&useCanonical=false&limit=5&api_key=ac6099e63826b8650f05e22c4cc08baa2f21668e3f16176fd")
+api_key = "64e90a58d89a8e7f3f000001fe809d0cd55d32cb45b9f117e"
 
-examples = response.parse["examples"]
+system "clear"
 
-examples.each do |example|
-  p example
-  puts ""
+puts "Welcome to the Dictionary App"
+puts "~•" * 25
+puts ""
+
+print "Enter a Word: "
+user_input = gets.chomp
+
+response = HTTP.get("https://api.wordnik.com/v4/word.json/#{ user_input }/definitions?limit=10&includeRelated=false&useCanonical=false&includeTags=false&api_key=#{ api_key }")
+
+top_example_response = HTTP.get("https://api.wordnik.com/v4/word.json/#{ user_input }/topExample?useCanonical=false&api_key=#{ api_key }")
+
+pronounciation_response = HTTP.get("https://api.wordnik.com/v4/word.json/#{ user_input }/pronunciations?useCanonical=false&limit=10&api_key=#{ api_key }")
+
+definitions = response.parse
+
+puts ""
+puts "Definitions"
+puts "=" * 50
+puts ""
+
+definitions.each do |definition|
+  if definition["text"] != nil
+    puts "    • #{definition["partOfSpeech"]} - #{definition["text"]}"
+  end
+end
+
+puts ""
+puts "Top Example"
+puts "=" * 50
+puts ""
+
+top_example_hash = top_example_response.parse
+
+puts top_example_hash["text"]
+
+puts ""
+puts "Pronunciations"
+puts "=" * 50
+puts ""
+
+pronunciations = pronounciation_response.parse
+
+pronunciations.each do |pronunciation|
+  puts  "    • #{pronunciation["raw"]}"
 end
